@@ -1,0 +1,30 @@
+services:
+  lm-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ROCM_VERSION: "${ROCM_VERSION}"
+        UBUNTU_VERSION: "${UBUNTU_VERSION}"
+        HSA_OVERRIDE_GFX_VERSION: "${HSA_OVERRIDE_GFX_VERSION}"
+    image: "lm-studio-rocm:${ROCM_VERSION}"
+    container_name: "lm-studio-rocm"
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      HIP_VISIBLE_DEVICES: "${GPU_IDS}"
+    volumes:
+      - "${MODELS_DIR}:/root/.cache/lm-studio"
+    devices:
+      - "/dev/kfd"
+      - "/dev/dri"
+    group_add:
+      - video
+    security_opt:
+      - "seccomp=unconfined"
+    ipc: host
+    shm_size: 8g
+    ports:
+      - "${PORT:-1234}:1234"
+      - "${VNC_PORT:-6080}:6080"
