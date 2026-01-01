@@ -26,9 +26,10 @@ rocminfo | grep "Name:" -A 5
    # Edit .env with your settings
    ```
    - `ROCM_VERSION`: ROCm version for the base image (e.g., `6.2`).
-   - `MODELS_DIR`: host path for model weights; will be mounted to `/root/.cache/lm-studio` in the container.
+   - `MODELS_DIR`: host path for model weights; will be mounted to `/home/lmstudio/.cache/lm-studio` in the container.
    - `GPU_IDS`: `all` or comma-separated GPU IDs for `HIP_VISIBLE_DEVICES`.
    - `PORT`: host port to bind to the LM Studio UI/API (container uses 1234).
+   - `USER_ID` / `GROUP_ID`: Set to your host user IDs for proper file permissions (find with `id -u` and `id -g`).
 2) Ensure the host models directory exists: `mkdir -p "$MODELS_DIR"`.
 
 ## Build & Run
@@ -100,9 +101,10 @@ curl http://localhost:1234/v1/models
 **Note**: The container must be running for CLI commands to work. Models persist in the mapped `MODELS_DIR` volume across restarts.
 
 ## Notes
+- The container runs as a non-root user (`lmstudio`) matching your host `USER_ID` and `GROUP_ID` for proper file permissions.
 - The compose file maps `/dev/kfd` and `/dev/dri`, sets `group_add: [video]`, `ipc: host`, and `shm_size: 8g` to reduce OOM in large models.
 - The mapped models folder persists weights across container restarts.
-- To target specific GPUs, set `GPU_IDS` to a list like `0,2`.
+- To target specific GPUs, set `GPU_IDS` to a list like `0,2` or `1,2` (excluding integrated GPUs).
 
 ## Troubleshooting
 - Permission denied on `/dev/kfd` or `/dev/dri`: add your user to `video` group and re-login, or run `docker compose` with a user that has access.

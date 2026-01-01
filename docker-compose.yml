@@ -7,6 +7,8 @@ services:
         ROCM_VERSION: "${ROCM_VERSION}"
         UBUNTU_VERSION: "${UBUNTU_VERSION}"
         HSA_OVERRIDE_GFX_VERSION: "${HSA_OVERRIDE_GFX_VERSION}"
+        USER_ID: "${USER_ID:-1000}"
+        GROUP_ID: "${GROUP_ID:-1000}"
     image: "lm-studio-rocm:${ROCM_VERSION}"
     container_name: "lm-studio-rocm"
     restart: unless-stopped
@@ -15,7 +17,7 @@ services:
     environment:
       HIP_VISIBLE_DEVICES: "${GPU_IDS}"
     volumes:
-      - "${MODELS_DIR}:/root/.cache/lm-studio"
+      - "${MODELS_DIR}:/home/lmstudio/.cache/lm-studio"
     devices:
       - "/dev/kfd"
       - "/dev/dri"
